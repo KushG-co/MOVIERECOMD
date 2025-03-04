@@ -8,8 +8,9 @@ import re
 # Set page config
 st.set_page_config(
     page_title="Movie Recommender System",
-    page_icon="🎬",
-    layout="wide"
+    page_icon="��",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Custom CSS
@@ -17,25 +18,40 @@ st.markdown("""
     <style>
     .main {
         padding: 2rem;
+        background-color: #f8f9fa;
     }
     .stButton>button {
         width: 100%;
         margin-top: 1rem;
+        background-color: #2c3e50;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #34495e;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .movie-title {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         font-weight: bold;
         text-align: center;
         margin-top: 0.5rem;
+        color: #2c3e50;
+        font-family: 'Helvetica Neue', sans-serif;
     }
     .movie-info {
         font-size: 0.9rem;
         color: #666;
         text-align: center;
         margin-top: 0.2rem;
+        font-family: 'Helvetica Neue', sans-serif;
     }
     .movie-overview {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: #444;
         text-align: center;
         margin-top: 0.2rem;
@@ -43,15 +59,69 @@ st.markdown("""
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        font-family: 'Helvetica Neue', sans-serif;
+        line-height: 1.5;
     }
     .genre-tag {
         display: inline-block;
-        background-color: #e0e0e0;
+        background-color: #e8f4f8;
+        padding: 0.3rem 0.8rem;
+        border-radius: 1.5rem;
+        margin: 0.2rem;
+        font-size: 0.8rem;
+        color: #2c3e50;
+        font-family: 'Helvetica Neue', sans-serif;
+        transition: all 0.3s ease;
+    }
+    .genre-tag:hover {
+        background-color: #d1e8f2;
+        transform: translateY(-1px);
+    }
+    .stSelectbox>div>div>select {
+        background-color: white;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        padding: 0.5rem;
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+    .stSelectbox>div>div>select:hover {
+        border-color: #2c3e50;
+    }
+    .movie-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .movie-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .rating-badge {
+        display: inline-block;
+        background-color: #f1c40f;
+        color: #2c3e50;
         padding: 0.2rem 0.5rem;
         border-radius: 1rem;
-        margin: 0.1rem;
         font-size: 0.8rem;
+        font-weight: bold;
+        margin: 0.2rem;
+    }
+    .section-title {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        font-family: 'Helvetica Neue', sans-serif;
+        text-align: center;
+    }
+    .footer {
+        text-align: center;
+        padding: 2rem;
         color: #666;
+        font-family: 'Helvetica Neue', sans-serif;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -123,14 +193,13 @@ def recommend(movie, movies_df, similarity_matrix):
         return []
 
 # Main app
-st.title("🎬 Movie Recommender System")
+st.markdown("<h1 class='section-title'>🎬 Movie Recommender System</h1>", unsafe_allow_html=True)
 st.markdown("""
-    This app recommends movies based on your selection, considering:
-    - Genre similarity
-    - Cast and crew overlap
-    - Content similarity
-    - Ratings and popularity
-""")
+    <div style='text-align: center; color: #666; font-family: "Helvetica Neue", sans-serif; margin-bottom: 2rem;'>
+        Discover your next favorite movie with our intelligent recommendation system.
+        Based on genre similarity, cast/crew overlap, and content analysis.
+    </div>
+""", unsafe_allow_html=True)
 
 # Load model files
 try:
@@ -141,37 +210,40 @@ except Exception as e:
     st.error(f"Error loading model files: {str(e)}")
     st.stop()
 
-# Movie selection
+# Movie selection with custom styling
+st.markdown("<h3 style='color: #2c3e50; font-family: \"Helvetica Neue\", sans-serif;'>Select a Movie</h3>", unsafe_allow_html=True)
 movie_list = sorted(movies['title'].values)
 selected_movie = st.selectbox(
-    "Select a movie from the dropdown",
+    "Choose a movie to get personalized recommendations",
     movie_list,
-    help="Choose a movie to get recommendations"
+    help="Select a movie to get recommendations based on its characteristics"
 )
 
 # Show selected movie info
 selected_movie_data = movies[movies['title'] == selected_movie].iloc[0]
-st.subheader("Selected Movie")
+st.markdown("<h2 class='section-title'>Selected Movie</h2>", unsafe_allow_html=True)
+
 col1, col2 = st.columns([1, 3])
 with col1:
     st.image(fetch_poster(selected_movie_data['movie_id']), use_column_width=True)
 with col2:
-    st.markdown(f"**{selected_movie_data['title']}** ({selected_movie_data['release_date'][:4]})")
-    st.markdown(f"Rating: {selected_movie_data['vote_average']:.1f} ⭐")
+    st.markdown(f"<h3 style='color: #2c3e50; font-family: \"Helvetica Neue\", sans-serif;'>{selected_movie_data['title']}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: #666;'>{selected_movie_data['release_date'][:4]}</p>", unsafe_allow_html=True)
+    st.markdown(f"<span class='rating-badge'>⭐ {selected_movie_data['vote_average']:.1f}</span>", unsafe_allow_html=True)
     
     # Display genres as tags
     genres_html = ' '.join([f'<span class="genre-tag">{genre}</span>' for genre in selected_movie_data['genres'].split()])
-    st.markdown(f"**Genres:** {genres_html}", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin: 1rem 0;'>{genres_html}</div>", unsafe_allow_html=True)
     
-    st.markdown(f"**Overview:** {selected_movie_data['overview']}")
+    st.markdown(f"<p style='color: #444; line-height: 1.6;'>{selected_movie_data['overview']}</p>", unsafe_allow_html=True)
 
 # Recommendation button
-if st.button('Show Recommendations', type="primary"):
-    with st.spinner('Getting recommendations...'):
+if st.button('Get Recommendations', type="primary"):
+    with st.spinner('Finding the perfect movies for you...'):
         recommended_movies = recommend(selected_movie, movies, similarity)
         
         if recommended_movies:
-            st.subheader("Recommended Movies")
+            st.markdown("<h2 class='section-title'>Recommended Movies</h2>", unsafe_allow_html=True)
             
             # Create columns for recommendations
             cols = st.columns(5)
@@ -179,23 +251,25 @@ if st.button('Show Recommendations', type="primary"):
             # Display recommendations
             for i, (col, movie) in enumerate(zip(cols, recommended_movies)):
                 with col:
+                    st.markdown("<div class='movie-card'>", unsafe_allow_html=True)
                     st.image(movie['poster'], use_column_width=True)
                     st.markdown(f"<p class='movie-title'>{movie['title']}</p>", unsafe_allow_html=True)
-                    st.markdown(f"<p class='movie-info'>Rating: {movie['rating']:.1f} ⭐</p>", unsafe_allow_html=True)
+                    st.markdown(f"<span class='rating-badge'>⭐ {movie['rating']:.1f}</span>", unsafe_allow_html=True)
                     
                     # Display genres as tags
                     genres_html = ' '.join([f'<span class="genre-tag">{genre}</span>' for genre in movie['genres'].split()])
-                    st.markdown(f"<p class='movie-info'>{genres_html}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='margin: 0.5rem 0;'>{genres_html}</div>", unsafe_allow_html=True)
                     
                     st.markdown(f"<p class='movie-overview'>{movie['overview']}</p>", unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.warning("No recommendations found. Please try another movie.")
 
 # Footer
-st.markdown("---")
 st.markdown("""
-    <div style='text-align: center'>
+    <div class='footer'>
         <p>Built with ❤️ using Streamlit</p>
         <p>Data source: TMDB API</p>
+        <p style='font-size: 0.8rem; margin-top: 1rem;'>© 2024 Movie Recommender System</p>
     </div>
 """, unsafe_allow_html=True) 
